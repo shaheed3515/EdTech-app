@@ -1,62 +1,84 @@
 import streamlit as st
 import pandas as pd
 
-# ---------- PAGE CONFIG ----------
+# ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="SkillBridge | Internship Matching",
-    layout="centered"
+    layout="centered",
+    initial_sidebar_state="collapsed"
 )
 
-# ---------- CUSTOM CSS (IMPORTANT FIX) ----------
+# ---------------- FORCE CSS (NUCLEAR OPTION) ----------------
 st.markdown("""
 <style>
-body {
-    background-color: #0f172a;
+/* Force background */
+html, body, [class*="css"] {
+    background-color: #020617 !important;
+    color: #e5e7eb !important;
 }
+
+/* Remove Streamlit padding weirdness */
 .block-container {
     padding-top: 2rem;
+    max-width: 800px;
 }
+
+/* Headings */
+h1, h2, h3 {
+    color: #f9fafb !important;
+}
+
+/* Inputs */
+input, textarea {
+    background-color: #0f172a !important;
+    color: #f9fafb !important;
+    border-radius: 12px !important;
+    border: 1px solid #1e293b !important;
+}
+
+/* Buttons */
+button {
+    background: linear-gradient(90deg, #2563eb, #1d4ed8) !important;
+    color: white !important;
+    border-radius: 14px !important;
+    padding: 10px 20px !important;
+    border: none !important;
+    font-weight: 600 !important;
+}
+
+/* Card */
 .card {
-    background-color: #111827;
+    background: #020617;
+    border: 1px solid #1e293b;
     padding: 25px;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    margin-bottom: 20px;
+    border-radius: 18px;
+    box-shadow: 0 0 50px rgba(59,130,246,0.15);
+    margin-bottom: 25px;
 }
-.title {
-    color: #e5e7eb;
-    font-size: 32px;
-    font-weight: 700;
-}
-.subtitle {
-    color: #9ca3af;
-    font-size: 16px;
-}
-.label {
-    color: #e5e7eb;
-    font-weight: 600;
-}
+
+/* Result Box */
 .result {
-    background-color: #022c22;
+    background: linear-gradient(135deg, #064e3b, #022c22);
     border-left: 6px solid #10b981;
-    padding: 20px;
-    border-radius: 12px;
+    padding: 22px;
+    border-radius: 16px;
     color: #ecfdf5;
+    font-size: 16px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- SESSION STATE ----------
+# ---------------- SESSION STATE ----------------
 st.session_state.setdefault("step", "login")
 st.session_state.setdefault("student", {"name": "", "skills": []})
 st.session_state.setdefault("company", {"name": "", "skills": []})
 
-# ---------- HEADER ----------
-st.markdown("<div class='title'>🎓 SkillBridge</div>", unsafe_allow_html=True)
-st.markdown("<div class='subtitle'>Skill-based Internship Matching for Tier-2 & Tier-3 Students</div>", unsafe_allow_html=True)
+# ---------------- HEADER ----------------
+st.markdown("## 🎓 SkillBridge")
+st.caption("Skill-based Internship Matching for Tier-2 & Tier-3 Students")
 st.divider()
 
-# ---------- LOGIN ----------
+# ---------------- LOGIN ----------------
 if st.session_state.step == "login":
     st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.subheader("🔐 Login")
@@ -67,30 +89,32 @@ if st.session_state.step == "login":
     if st.button("Login →"):
         st.session_state.step = "role"
         st.rerun()
+
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------- ROLE ----------
+# ---------------- ROLE ----------------
 elif st.session_state.step == "role":
     st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.subheader("Choose Role")
+    st.subheader("Select Your Role")
 
-    col1, col2 = st.columns(2)
+    c1, c2 = st.columns(2)
 
-    with col1:
+    with c1:
         if st.button("👨‍🎓 Student"):
             st.session_state.step = "student"
             st.rerun()
 
-    with col2:
+    with c2:
         if st.button("🏢 Company"):
             st.session_state.step = "company"
             st.rerun()
+
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------- STUDENT ----------
+# ---------------- STUDENT ----------------
 elif st.session_state.step == "student":
     st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.subheader("Student Profile")
+    st.subheader("Student Details")
 
     name = st.text_input("Student Name")
     skills = st.text_input("Skills (python java sql)")
@@ -102,9 +126,10 @@ elif st.session_state.step == "student":
         ]
         st.session_state.step = "company"
         st.rerun()
+
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------- COMPANY ----------
+# ---------------- COMPANY ----------------
 elif st.session_state.step == "company":
     st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.subheader("Company Requirements")
@@ -119,11 +144,12 @@ elif st.session_state.step == "company":
         ]
         st.session_state.step = "result"
         st.rerun()
+
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------- RESULT ----------
+# ---------------- RESULT ----------------
 elif st.session_state.step == "result":
-    st.subheader("📊 Match Result")
+    st.subheader("📊 Match Analysis")
 
     student_skills = st.session_state.student["skills"]
     company_skills = st.session_state.company["skills"]
@@ -145,6 +171,7 @@ elif st.session_state.step == "result":
         "Category": ["Matched", "Missing"],
         "Count": [len(matched), len(company_skills) - len(matched)]
     })
+
     st.bar_chart(df.set_index("Category"))
 
     if st.button("🔄 Start Again"):
